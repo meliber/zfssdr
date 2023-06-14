@@ -11,15 +11,11 @@ class Datasets:
     ZFS datasets from a host where this program is running.
     """
 
-    def __init__(self, filter=None) -> None:
+    def __init__(self):
         # my datasets are named like this:
         # rpool/archlinux/data or rpool/archlinux/var/lib
-        # I only deal with these datasets instead of their container
-        # which look like rpool/archlinux or the whole pool rpool
-        # so filter datasets with length of name equals 3 or 4
-        if not filter:
-            filter = (3, 4)
-        self.filter = filter
+        # I only deal with these datasets instead of their containers
+        # which look like rpool/archlinux or the whole pool (like rpool, dpool)
         self.actions = {'s': 'sudo zfs snapshot',
                         'd': 'sudo zfs destroy',
                         'r': 'sudo zfs rollback'}
@@ -30,43 +26,72 @@ class Datasets:
             print('Failed to list datasets')
             sys.exit(1)
         self.all_datasets  = result.stdout.decode('utf-8').strip().split('\n')[1:]
-        self.datasets = [dataset for dataset in self.all_datasets if len(dataset.split('/')) in self.filter]
 
-    @staticmethod
-    def is_data(dataset: str) -> bool:
+    def datasets(self, filter=None):
+        return self._filter(filter)
+
+    def _filter(self, filter):
+        if filter is None:
+            # get datasets with length of name split by '/' equals 3 or 4
+            filter = (3, 4)
+        try:
+            datasets = [dataset for dataset in self.all_datasets if len(dataset.split('/')) in filter]
+            if datasets:
+                return datasets
+            return
+        except:
+            return
+
+    def is_data(self, dataset):
+        return self._is_data(dataset)
+
+    def _is_data(self, dataset):
+        # dataset with name starts with 'dpool' or ends with '/home'
+        # is considered as a dataset for data which will not be
+        # rollback under system rollback circumstance
         return dataset.startswith('dpool') or dataset.endswith('/home')
 
-    def act(self, action: str, suffix: str) -> None:
+    def act(self, action, suffix, filter):
         """
         Execute snapshots, destroy or rollback of filtered datasets.
         """
-        datasets = self.datasets
+        datasets = self.datasets(filter)
         if not suffix:
             suffix = today
         try:
             action = self.actions[action]
-        except:
-            print('Invalid action.')
+            action_primitive = action.split()[-1]
+        except KeyError as e:
+            print('Invalid action. Support actions: s, d, r')
             sys.exit(1)
-        if action == 'zfs rollback':
-            datasets = [dataset for dataset in self.datasets if not self.is_data(dataset)]
+        # don't rollback datasets which are data
+        if action_primitive == 'rollback':
+            datasets = [dataset for dataset in datasets if not self.is_data(dataset)]
+        snapshots = []
         for dataset in datasets:
-            snapshot = dataset + '@' + suffix
+            snapshots.append(dataset + '@' + suffix)
+        print(f'Performing {action_primitive} on {len(datasets)} datasets(snapshots) in 5 seconds:')
+        for snapshot in snapshots:
+            print(f'{str.capitalize(action_primitive)} {snapshot}')
+        print('\n')
+        time.sleep(5)
+        for snapshot in snapshots:
             command = action + ' ' + snapshot
             try:
                 time.sleep(0.2)
                 print(command)
                 result = subprocess.run([command], shell=True)
+                if result.returncode != 0:
+                    print(f'Failed to {action_primitive} {snapshot}.')
             except Exception as e:
                 print(e)
-                print(f'Failed to {self.actions[action].split()[-1]} {snapshot}.')
 
 def zfssdr(action='s', suffix=None, filter=(3, 4)):
     """
     Execute snapshots, destroy or rollback of filtered datasets.
     """
-    datasets = Datasets(filter)
-    datasets.act(action, suffix)
+    ds = Datasets()
+    ds.act(action, suffix, filter)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Execute snapshots, destroy or rollback of filtered datasets.')
