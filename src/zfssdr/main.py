@@ -49,7 +49,7 @@ class Datasets:
         # dataset with name starts with 'dpool' or ends with '/home'
         # is considered as a dataset for data which will not be
         # rollback under system rollback circumstance
-        return dataset.startswith('dpool') or dataset.endswith('/home')
+        return dataset.startswith('dpool') or dataset.endswith('/home') or dataset.endswith('/data')
 
     def act(self, action, suffix, filter):
         """
