@@ -3,14 +3,20 @@ import subprocess
 import time
 import sys
 import argparse
+import glob
 
 today = datetime.date.today().strftime("%Y%m%d")
-CACHE_DIRS = ['/var/cache/pacman/pkg', '$HOME/.cache/paru/clone']
+CACHE_DIRS = ['/var/cache/pacman/pkg', '$HOME/.cache/paru/clone', '/home/han/.cache/paru/clone']
 
 def clear_cache(CACHE_DIRS):
     for cache_dir in CACHE_DIRS:
-        print(f'Clearing cache in {cache_dir}')
-        subprocess.run(['rm', '-rf', f'{cache_dir}/*'])
+        print(f'Clearing cache in {cache_dir} ...')
+        # the trailing glob * need shell to expand to file names
+        # use glob to expand file names
+        # check=True will make the method throwing exception if
+        # a non-zero exit code is returned
+        subprocess.run(['rm', '-rf'] + glob.glob(f'{cache_dir}/*'), check=True)
+
 
 class Datasets:
     """
