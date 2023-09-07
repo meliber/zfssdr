@@ -5,6 +5,12 @@ import sys
 import argparse
 
 today = datetime.date.today().strftime("%Y%m%d")
+CACHE_DIRS = ['/var/cache/pacman/pkg', '$HOME/.cache/paru/clone']
+
+def clear_cache(CACHE_DIRS):
+    for cache_dir in CACHE_DIRS:
+        print(f'Clearing cache in {cache_dir}')
+        subprocess.run(['rm', '-rf', f'{cache_dir}/*'])
 
 class Datasets:
     """
@@ -67,6 +73,8 @@ class Datasets:
         # don't rollback datasets which are data
         if action_primitive == 'rollback':
             datasets = [dataset for dataset in datasets if not self.is_data(dataset)]
+        if action_primitive == 'snapshot':
+            clear_cache(CACHE_DIRS)
         snapshots = []
         for dataset in datasets:
             snapshots.append(dataset + '@' + suffix)
