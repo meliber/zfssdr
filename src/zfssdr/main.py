@@ -10,6 +10,11 @@ import glob
 today = datetime.date.today().strftime("%Y%m%d")
 CACHE_DIRS = ['/var/cache/pacman/pkg', '$HOME/.cache/paru/clone', '/home/han/.cache/paru/clone']
 
+def reversed_count(n=5):
+    for i in reversed(range(1, n+1)):
+        print(i)
+        time.sleep(1)
+
 def clear_cache(CACHE_DIRS):
     for cache_dir in CACHE_DIRS:
         print(f'Clearing cache in {cache_dir} ...')
@@ -90,7 +95,7 @@ class Datasets:
         for snapshot in snapshots:
             print(f'{str.capitalize(action_primitive)} {snapshot}')
         print('\n')
-        time.sleep(5)
+        reversed_count(5)
         for snapshot in snapshots:
             command = action + ' ' + snapshot
             try:
