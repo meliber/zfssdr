@@ -13,6 +13,7 @@ CACHE_DIRS = ['/var/cache/pacman/pkg', '$HOME/.cache/paru/clone', '/home/han/.ca
 def reversed_count(n=5):
     for i in reversed(range(1, n+1)):
         print(i)
+        print('\n')
         time.sleep(1)
 
 def clear_cache(CACHE_DIRS):
