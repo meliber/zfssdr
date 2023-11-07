@@ -6,9 +6,15 @@ import time
 import sys
 import argparse
 import glob
+import pwd
 
 today = datetime.date.today().strftime("%Y%m%d")
-CACHE_DIRS = ['/var/cache/pacman/pkg', '$HOME/.cache/paru/clone', '/home/han/.cache/paru/clone']
+users = [0, 1000]
+user_paru_cache_trail = '.cache/paru/clone'
+arch_pkg_cache = 'var/cache/pacman/pkg'
+user_paru_cache = [ user.pw_dir + "/" + user_paru_cache_trail for user in [ pwd.getpwuid(uid) for uid in users ]]
+user_paru_cache.append(arch_pkg_cache)
+CACHE_DIRS = user_paru_cache
 
 def reversed_count(n=5):
     for i in reversed(range(1, n+1)):
@@ -95,7 +101,6 @@ class Datasets:
         print(f'Performing {action_primitive} on {len(datasets)} datasets(snapshots) in 5 seconds:')
         for snapshot in snapshots:
             print(f'{str.capitalize(action_primitive)} {snapshot}')
-        print('\n')
         reversed_count(5)
         for snapshot in snapshots:
             command = action + ' ' + snapshot
