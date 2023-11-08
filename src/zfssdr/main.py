@@ -18,7 +18,7 @@ CACHE_DIRS = user_paru_cache
 
 def reversed_count(n=5):
     for i in reversed(range(1, n+1)):
-        print(i, end='\n', flush=True)
+        print(i, end='\n\n')
         time.sleep(1)
 
 def clear_cache(CACHE_DIRS):
