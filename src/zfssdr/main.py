@@ -18,8 +18,7 @@ CACHE_DIRS = user_paru_cache
 
 def reversed_count(n=5):
     for i in reversed(range(1, n+1)):
-        print(i)
-        print('\n')
+        print(i, end='\n', flush=True)
         time.sleep(1)
 
 def clear_cache(CACHE_DIRS):
@@ -101,6 +100,7 @@ class Datasets:
         print(f'Performing {action_primitive} on {len(datasets)} datasets(snapshots) in 5 seconds:')
         for snapshot in snapshots:
             print(f'{str.capitalize(action_primitive)} {snapshot}')
+        print()
         reversed_count(5)
         for snapshot in snapshots:
             command = action + ' ' + snapshot
