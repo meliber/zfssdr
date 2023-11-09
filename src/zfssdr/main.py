@@ -44,13 +44,15 @@ class Datasets:
         self.actions = {'s': 'sudo zfs snapshot',
                         'd': 'sudo zfs destroy',
                         'r': 'sudo zfs rollback'}
-        # get names of all datasets
-        # zfs list -o name
-        result = subprocess.run(['zfs', 'list', '-o', 'name'], capture_output=True)
+        # get names of all mounted datasets
+        # rule out containers
+        # zfs list -H  -o name,mounted | grep yes | cut -f1
+        result = subprocess.run(['zfs', 'list', '-H','-o', 'name,mounted'], capture_output=True)
         if result.returncode != 0:
             print('Failed to list datasets')
             sys.exit(1)
-        self.all_datasets  = result.stdout.decode('utf-8').strip().split('\n')[1:]
+        result = result.stdout.decode('utf-8').strip().split('\n')
+        self.all_datasets  = [ line.split()[0] for line in result if line.endswith('yes') ]
 
     def datasets(self, filter=None):
         return self._filter(filter)
