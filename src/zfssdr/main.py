@@ -99,7 +99,7 @@ class Datasets:
         snapshots = []
         for dataset in datasets:
             snapshots.append(dataset + '@' + suffix)
-        print(f'Performing {action_primitive} on {len(datasets)} datasets(snapshots) in 5 seconds:')
+        print(f'Performing {action_primitive} on {len(datasets)} datasets(snapshots) in 5 seconds:', end='\n\n')
         for snapshot in snapshots:
             print(f'{str.capitalize(action_primitive)} {snapshot}')
         print()
